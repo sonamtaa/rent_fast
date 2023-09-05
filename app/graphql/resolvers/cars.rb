@@ -1,18 +1,23 @@
 # frozen_string_literal: true
 
 module Resolvers
-  class Cars < GraphQL::Schema::Resolver
+  class Cars < SearchObjectBase
     description 'Fetches Cars from API'
 
-    type Types::Cars.connection_type, null: true
+    scope { Car.all }
 
-    # argument :skip, Integer, 'Used to offset the records', required: false
-    # argument :ticket_id, ID, 'ID of ticket', required: false
+    type Types::CarType.connection_type, null: true
 
-    def resolve(**args)
-      cars = Car.all.order(created_at: :desc)
-      # args[:skip] ? cars.offset(args[:skip]) : cars
-      cars
+    argument :skip, Integer, 'Used to offset the records', required: false
+
+    option :car_type_filter, type: Types::CarCategoryEnumType, with: :car_type_filter, null: true,
+                             description: <<~DESC
+                               Supports filtering by car_type
+                             DESC
+
+    def car_type_filter(scope, _value)
+      # FIXME: this is temporarily
+      scope
     end
   end
 end
